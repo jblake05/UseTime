@@ -1,6 +1,19 @@
 #include "../include/UseTime/PluginProcessor.h"
 #include "../include/UseTime/PluginEditor.h"
+#include <fstream>
+#include <iostream>
 
+//==============================================================================
+double srate;
+int elapsedSamples = 0;
+
+double totalSeconds;
+double secondsElapsed = 0.0;
+
+const int SAMPLE_FACTOR = 4;
+const double SAVE_INTERVAL = 60.0;
+
+using namespace std;
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
@@ -12,10 +25,43 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                      #endif
                        )
 {
+    srate = getSampleRate();
+    string time;
+    ifstream fileIn;
+
+    fileIn.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
+	if (!fileIn.is_open()) {
+		std::cerr << "Time input file couldn't open!";
+	}
+
+    getline(fileIn, time);
+
+    fileIn.close();
+
+    totalSeconds = stod(time);
+}
+
+static int writeFile() {
+	ofstream fileOut;
+	fileOut.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
+
+	if (!fileOut.is_open()) {
+		cerr << "Time output file couldn't open!";
+		return -1;
+	}
+
+	string newTime = to_string(totalSeconds);
+
+	fileOut << newTime;
+
+	fileOut.close();
+
+	return 0;
 }
 
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
+    writeFile();
 }
 
 //==============================================================================
@@ -121,14 +167,40 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
   #endif
 }
 
+struct time {
+    int hour;
+    int minute;
+    int second;
+};
+
+struct time secondToTime(double second) {
+	int hr = (int) (second / 3600);
+
+	second = fmod(second, 3600);
+
+	int min = (int) (second / 60);
+
+	second = fmod(second, 60);
+
+	int sec = (int)(second);
+
+	struct time result = {
+		hr,
+		min,
+		sec
+	};
+
+	return result;
+}
+
 void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
     juce::ignoreUnused (midiMessages);
 
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
+    // auto totalNumInputChannels  = getTotalNumInputChannels();
+    // auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -136,8 +208,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // This is here to avoid people getting screaming feedback
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    // for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    //     buffer.clear (i, 0, buffer.getNumSamples());
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -145,11 +217,30 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
-        // ..do something to the data...
+    // for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // {
+    //     auto* channelData = buffer.getWritePointer (channel);
+    //     juce::ignoreUnused (channelData);
+    //     // ..do something to the data...
+    // }
+    elapsedSamples += buffer.getNumSamples();
+
+    srate = getSampleRate();
+
+    if (elapsedSamples > srate / SAMPLE_FACTOR) {
+        double fracSeconds = elapsedSamples / srate;
+
+        totalSeconds += fracSeconds;
+        secondsElapsed += fracSeconds;
+
+        elapsedSamples -= (int) srate / SAMPLE_FACTOR;
+
+        // edit parameter now
+    }
+
+    if (secondsElapsed > SAVE_INTERVAL) {
+        writeFile();
+        secondsElapsed -= SAVE_INTERVAL;
     }
 }
 
