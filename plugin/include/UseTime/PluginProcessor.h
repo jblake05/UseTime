@@ -44,5 +44,8 @@ public:
 
 private:
     //==============================================================================
+    juce::AudioParameterInt* hour;
+    juce::AudioParameterInt* minute;
+    juce::AudioParameterInt* second;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

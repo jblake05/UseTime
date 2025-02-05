@@ -2,6 +2,7 @@
 #include "../include/UseTime/PluginEditor.h"
 #include <fstream>
 #include <iostream>
+// #include <juce_AudioParameterInt.h>
 
 //==============================================================================
 double srate;
@@ -39,6 +40,16 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     fileIn.close();
 
     totalSeconds = stod(time);
+
+    // parameter setting:
+    addParameter(hour = new juce::AudioParameterInt("hourId", "Hours", 0, 1000000000, 0));
+    addParameter(minute = new juce::AudioParameterInt("minuteId", "Minutes", 0, 59, 0));
+    addParameter(second = new juce::AudioParameterInt("secondId", "Seconds", 0, 59, 0));
+        //id
+        //name
+        //min
+        //max
+        //default
 }
 
 static int writeFile() {
@@ -236,6 +247,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         elapsedSamples -= (int) srate / SAMPLE_FACTOR;
 
         // edit parameter now
+        struct time timeVal = secondToTime(totalSeconds);
+        *hour = timeVal.hour;
+        *minute = timeVal.minute;
+        *second = timeVal.second;
     }
 
     if (secondsElapsed > SAVE_INTERVAL) {
@@ -252,7 +267,8 @@ bool AudioPluginAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 {
-    return new AudioPluginAudioProcessorEditor (*this);
+    // return new AudioPluginAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -261,14 +277,21 @@ void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    juce::ignoreUnused (destData);
+    // juce::ignoreUnused (destData);
+    juce::MemoryOutputStream (destData, true).writeInt(*hour);
+    juce::MemoryOutputStream (destData, true).writeInt(*minute);
+    juce::MemoryOutputStream (destData, true).writeInt(*second);
+
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    juce::ignoreUnused (data, sizeInBytes);
+    // juce::ignoreUnused (data, sizeInBytes);
+    *hour = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readInt();
+    *minute = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readInt();
+    *second = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readInt();
 }
 
 //==============================================================================
