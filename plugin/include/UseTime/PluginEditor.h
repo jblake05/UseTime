@@ -18,5 +18,17 @@ private:
     // access the processor object that created it.
     AudioPluginAudioProcessor& processorRef;
 
+    // Labels for timer
+    juce::Label hourLabel;
+    juce::Label minuteLabel;
+    juce::Label secondLabel;
+
+    // Strings for labels, used for comparison => efficient repainting
+    std::string hourString;
+    std::string minuteString;
+    std::string secondString;
+
+    juce::Font font;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

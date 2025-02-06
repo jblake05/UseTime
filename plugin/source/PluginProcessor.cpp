@@ -6,7 +6,7 @@
 
 //==============================================================================
 double srate;
-int elapsedSamples = 0;
+double elapsedSamples = 0.0;
 
 double totalSeconds;
 double secondsElapsed = 0.0;
@@ -25,6 +25,12 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
+        //                ,
+        // apvts(*this, nullptr, juce::Identifier("APVTS"), {
+        //     std::make_unique<juce::AudioParameterInt> ("hourId", "Hours", 0, 1000000000, 0),
+        //     std::make_unique<juce::AudioParameterInt> ("minuteId", "Minutes", 0, 59, 0),
+        //     std::make_unique<juce::AudioParameterInt> ("secondId", "Seconds", 0, 59, 0)
+        // })
 {
     srate = getSampleRate();
     string time;
@@ -50,6 +56,9 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
         //min
         //max
         //default
+    // hourParameter = apvts.getRawParameterValue("hourId");
+    // minuteParameter = apvts.getRawParameterValue("minuteId");
+    // secondParameter = apvts.getRawParameterValue("secondId");
 }
 
 static int writeFile() {
@@ -244,13 +253,17 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         totalSeconds += fracSeconds;
         secondsElapsed += fracSeconds;
 
-        elapsedSamples -= (int) srate / SAMPLE_FACTOR;
+        elapsedSamples -= srate / SAMPLE_FACTOR;
 
         // edit parameter now
         struct time timeVal = secondToTime(totalSeconds);
-        *hour = timeVal.hour;
-        *minute = timeVal.minute;
-        *second = timeVal.second;
+        if (*hour != timeVal.hour)
+            *hour = timeVal.hour;
+        if (*minute != timeVal.minute)
+            *minute = timeVal.minute;
+        if (*second != timeVal.second)
+            *second = timeVal.second;
+        // apvts
     }
 
     if (secondsElapsed > SAVE_INTERVAL) {
@@ -267,8 +280,11 @@ bool AudioPluginAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 {
-    // return new AudioPluginAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    // return new AudioPluginAudioProcessorEditor (*this, *hour, *minute, *second);
+    return new AudioPluginAudioProcessorEditor(*this);
+
+    // generic until you add a UI that is read only and nice fonts :)
+    // return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
