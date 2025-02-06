@@ -39,10 +39,26 @@ namespace audio_plugin_test {
         }
     }
     
-    // // Audio processor in buffer = out buffer, filled with 1s
-    // TEST(AudioProcessor, OneFill) {
+    // Audio processor in buffer = out buffer, filled with 1s
+    TEST(AudioProcessor, OneFill) {
+        juce::AudioBuffer<float> in(2, 256);
+        
+        fillBuffer(in, 1.0f);
 
-    // }
+        juce::AudioBuffer<float> copyIn(in);
+        juce::MidiBuffer midiBuffer;
+
+        AudioPluginAudioProcessor processor;
+        processor.processBlock(in, midiBuffer);
+
+        for (int c = 0; c < 2; c++) {
+            auto* inData = in.getReadPointer(c);
+            auto* copyInData = copyIn.getReadPointer(c);
+            for (int s = 0; s < 256; s++) {
+                ASSERT_TRUE(inData[s] == copyInData[s]);
+            }
+        }
+    }
 
     // // Audio processor in buffer = out buffer, filled with sine wave
     // TEST(AudioProcessor, SineFill) {
