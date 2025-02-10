@@ -7,12 +7,14 @@
 //==============================================================================
 double srate;
 double elapsedSamples = 0.0;
+int timesCalled = 0;
 
-double totalSeconds;
+// double totalSeconds;
 double secondsElapsed = 0.0;
 
 const int SAMPLE_FACTOR = 4;
 const double SAVE_INTERVAL = 60.0;
+const int hz = 2;
 
 using namespace std;
 //==============================================================================
@@ -47,18 +49,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 
     totalSeconds = stod(time);
 
-    // parameter setting:
-    addParameter(hour = new juce::AudioParameterInt("hourId", "Hours", 0, 1000000000, 0));
-    addParameter(minute = new juce::AudioParameterInt("minuteId", "Minutes", 0, 59, 0));
-    addParameter(second = new juce::AudioParameterInt("secondId", "Seconds", 0, 59, 0));
-        //id
-        //name
-        //min
-        //max
-        //default
-    // hourParameter = apvts.getRawParameterValue("hourId");
-    // minuteParameter = apvts.getRawParameterValue("minuteId");
-    // secondParameter = apvts.getRawParameterValue("secondId");
+    startTimerHz(hz);
 }
 
 static int writeFile() {
@@ -79,6 +70,14 @@ static int writeFile() {
 	return 0;
 }
 
+void timerCallback() {
+    totalSeconds +=
+    if (++timesCalled == (int) SAMPLE_INTERVAL * hz) {
+        writeFile();
+    }
+
+    
+}
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
     writeFile();
