@@ -6,6 +6,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     : AudioProcessorEditor (&p), processorRef (p)
 {
     juce::ignoreUnused (processorRef);
+    startTimerHz(1);
     // hourLabel = Label("hourLabel", "0");
     // minuteLabel = Label("minuteLabel", "0");
     // secondLabel = Label("secondLabel", "0");
@@ -37,6 +38,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     hourLabel.setEditable(false);
     minuteLabel.setEditable(false);
     secondLabel.setEditable(false);
+
     // font.setTypefaceName("Courier");
 
     // font.setTypefaceName("Courier");
@@ -48,6 +50,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
+    stopTimer();
 }
 
 //==============================================================================
@@ -88,7 +91,7 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
         secondLabel.setText(secondString, juce::sendNotification);
         // ideally only need to repaint here because a change in the second is guaranteed when a change in the hour/minute occurs
     }
-    repaint();
+    // repaint();
 }
 
 void AudioPluginAudioProcessorEditor::resized()

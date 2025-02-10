@@ -18,6 +18,11 @@ namespace audio_plugin_test {
         } 
     }
 
+    void fillSample(juce::AudioBuffer<float>& buffer, float val, int channel, int sampleNumber) {
+        auto* channelData = buffer.getWritePointer(channel);
+        channelData[sampleNumber] = val;
+    }
+
     // Audio processor in buffer = out buffer, filled with 0s
     TEST(AudioProcessor, ZeroFill) {
         juce::AudioBuffer<float> in(2, 256);
