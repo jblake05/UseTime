@@ -1,12 +1,16 @@
 // #include "PluginProcessor.h"
 #include "../include/UseTime/PluginEditor.h"
 
+const int WIDTH_PADDING = 10;
+const int HEIGHT_PADDING = 10;
+const int DIST = 15;
+
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
 {
     juce::ignoreUnused (processorRef);
-    startTimerHz(1);
+    startTimerHz(4/3);
     // hourLabel = Label("hourLabel", "0");
     // minuteLabel = Label("minuteLabel", "0");
     // secondLabel = Label("secondLabel", "0");
@@ -19,9 +23,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     minuteString = "0";
     secondString = "0";
 
-    hourLabel.setText(hourString, juce::dontSendNotification);
-    minuteLabel.setText(minuteString, juce::dontSendNotification);
-    secondLabel.setText(secondString, juce::dontSendNotification);
+    hourLabel.setText(hourString + " hours", juce::dontSendNotification);
+    minuteLabel.setText(minuteString + " minutes", juce::dontSendNotification);
+    secondLabel.setText(secondString + " seconds", juce::dontSendNotification);
 
     font = juce::Font("Courier", 20.0f, juce::Font::bold);
 
@@ -31,9 +35,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     secondLabel.setFont(font);
 
     // label color setsting
-    hourLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    minuteLabel.setColour(juce::Label::textColourId, juce::Colours::black);
-    secondLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    hourLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
+    minuteLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
+    secondLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
 
     hourLabel.setEditable(false);
     minuteLabel.setEditable(false);
@@ -80,15 +84,15 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
     if (hourString != pHour) {
         hourString = pHour;
-        hourLabel.setText(hourString, juce::sendNotification);
+        hourLabel.setText(hourString + " hours", juce::dontSendNotification);
     }
     if (minuteString != pMinute) {
         minuteString = pMinute;
-        minuteLabel.setText(minuteString, juce::sendNotification);
+        minuteLabel.setText(minuteString + " minutes", juce::dontSendNotification);
     }
     if (secondString != pSecond) {
         secondString = pSecond;
-        secondLabel.setText(secondString, juce::sendNotification);
+        secondLabel.setText(secondString + " seconds", juce::dontSendNotification);
         // ideally only need to repaint here because a change in the second is guaranteed when a change in the hour/minute occurs
     }
     // repaint();
@@ -98,7 +102,12 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    hourLabel.setBounds(getWidth()/2, getHeight()/2 - 15, getWidth() - 20, 30);
-    minuteLabel.setBounds(getWidth()/2, getHeight()/2, getWidth() - 20, 30);
-    secondLabel.setBounds(getWidth()/2, getHeight()/2 + 15, getWidth() - 20, 30);
+    // ig keep the units one for each line to avoid overlap when the vals increase?
+    // maybe add labels (e.g. Hours: x \n Minutes: y \n Seconds: z \n)
+    // hourLabel.setBounds(getWidth()/2, getHeight()/2 - 15, getWidth() - 20, 30);
+    // minuteLabel.setBounds(getWidth()/2, getHeight()/2, getWidth() - 20, 30);
+    // secondLabel.setBounds(getWidth()/2, getHeight()/2 + 15, getWidth() - 20, 30);
+    hourLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING, getWidth() - 20, 30);
+    minuteLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + DIST, getWidth() - 20, 30);
+    secondLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + 2*DIST, getWidth() - 20, 30);
 }
