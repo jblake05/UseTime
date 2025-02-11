@@ -2,6 +2,8 @@
 
 #include "PluginProcessor.h"
 
+using namespace juce;
+using namespace std;
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, private juce::Timer
 {
@@ -19,20 +21,24 @@ private:
     AudioPluginAudioProcessor& processorRef;
 
     // Labels for timer
-    juce::Label hourLabel;
-    juce::Label minuteLabel;
-    juce::Label secondLabel;
+    Label hourLabel;
+    Label minuteLabel;
+    Label secondLabel;
+    Label splashLabel;
 
     // Strings for labels, used for comparison => efficient repainting
-    std::string hourString;
-    std::string minuteString;
-    std::string secondString;
+    string hourString;
+    string minuteString;
+    string secondString;
 
-    juce::Font font;
+    Font font;
 
     void timerCallback() final {
         repaint();
     }
+
+    static const int SPLASH_ARRAY_SIZE = 3;
+    std::string splashText[SPLASH_ARRAY_SIZE] = {"Good luck!", "Keep making things :)", "Have fun!"};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

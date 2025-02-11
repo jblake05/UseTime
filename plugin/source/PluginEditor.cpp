@@ -6,8 +6,10 @@ const int WIDTH_PADDING = 10;
 const int HEIGHT_PADDING = 10;
 const int DIST = 15;
 struct time totalTime;
+int randSplash;
 
 using namespace std;
+using namespace juce;
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
@@ -21,6 +23,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible(hourLabel);
     addAndMakeVisible(minuteLabel);
     addAndMakeVisible(secondLabel);
+    addAndMakeVisible(splashLabel);
 
     totalTime = secondToTime(processorRef.totalSeconds);
 
@@ -32,21 +35,29 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     minuteLabel.setText(minuteString + " minutes", juce::dontSendNotification);
     secondLabel.setText(secondString + " seconds", juce::dontSendNotification);
 
+    randSplash = rand() % SPLASH_ARRAY_SIZE;
+    splashLabel.setText(splashText[randSplash], juce::dontSendNotification);
+
     font = juce::Font("Courier", 20.0f, juce::Font::bold);
 
     // label font setting
     hourLabel.setFont(font);
     minuteLabel.setFont(font);
     secondLabel.setFont(font);
+    splashLabel.setFont(font);
 
     // label color setsting
     hourLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
     minuteLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
     secondLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
+    splashLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
+
+    splashLabel.setJustificationType(Justification::bottomRight);
 
     hourLabel.setEditable(false);
     minuteLabel.setEditable(false);
     secondLabel.setEditable(false);
+    splashLabel.setEditable(false);
 
     // font.setTypefaceName("Courier");
 
@@ -69,15 +80,19 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     // g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
     g.fillAll(juce::Colours::lightgreen);
 
-    g.setColour (juce::Colours::black);
+    // g.setColour (juce::Colour(216, 132, 132));
     
 
     // font.setBold(true);
 
-    g.setFont(font);
+    // g.setFont(font);
     // g.setFont(20.0f);
     // g.setTypefaceName("Courier");
-    // g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+
+    // apply width and height padding to this bounding box
+    // juce::Rectangle<int> splashBounds = juce::Rectangle<int>(0, 0, getWidth() - WIDTH_PADDING, getHeight() - HEIGHT_PADDING);
+    // g.drawFittedText (splashText[randSplash], splashBounds, juce::Justification::bottomRight, 1);
+    // g.drawFittedText(splashText[randSplash], getWidth() - WIDTH_PADDING, getHeight() - HEIGHT_PADDING, getWidth()/2, getHeight()/2, juce::Justification::left, 2);
     // g.drawFittedText(":", getWidth()/2 + 10, getHeight()/2 - 10, getWidth() - 20, 30, juce::Justification::centred, 1);
     // g.drawFittedText(":", getWidth()/2 + 10, getHeight()/2, getWidth() - 20, 30, juce::Justification::centred, 1);
 
@@ -122,4 +137,10 @@ void AudioPluginAudioProcessorEditor::resized()
     hourLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING, getWidth() - 20, 30);
     minuteLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + DIST, getWidth() - 20, 30);
     secondLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + 2*DIST, getWidth() - 20, 30);
+
+    Rectangle<int> bounds = getLocalBounds();
+    // bounds.width -= WIDTH_PADDING;
+    // bounds.height -= HEIGHT_PADDING;
+    bounds.reduce(2*WIDTH_PADDING, 2*HEIGHT_PADDING);
+    splashLabel.setBounds(bounds);
 }
