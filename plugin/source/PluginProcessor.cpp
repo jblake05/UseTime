@@ -52,7 +52,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     startTimerHz(hz);
 }
 
-static int writeFile() {
+int AudioPluginAudioProcessor::writeFile() {
 	ofstream fileOut;
 	fileOut.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
 
@@ -70,9 +70,9 @@ static int writeFile() {
 	return 0;
 }
 
-void timerCallback() {
+void AudioPluginAudioProcessor::timerCallback() {
     totalSeconds += (double) getTimerInterval()/1000;
-    if (++timesCalled == (int) SAMPLE_INTERVAL * hz) {
+    if (++timesCalled == (int) SAVE_INTERVAL * hz) {
         writeFile();
     }
 }

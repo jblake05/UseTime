@@ -5,6 +5,7 @@
 const int WIDTH_PADDING = 10;
 const int HEIGHT_PADDING = 10;
 const int DIST = 15;
+struct time totalTime;
 
 using namespace std;
 //==============================================================================
@@ -12,7 +13,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     : AudioProcessorEditor (&p), processorRef (p)
 {
     juce::ignoreUnused (processorRef);
-    startTimerHz(4/3);
+    startTimerHz(2);
     // hourLabel = Label("hourLabel", "0");
     // minuteLabel = Label("minuteLabel", "0");
     // secondLabel = Label("secondLabel", "0");
@@ -26,10 +27,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     hourString = to_string(totalTime.hour);
     minuteString = to_string(totalTime.minute);
     secondString = to_string(totalTime.second);
-
-    hourString = "0";
-    minuteString = "0";
-    secondString = "0";
 
     hourLabel.setText(hourString + " hours", juce::dontSendNotification);
     minuteLabel.setText(minuteString + " minutes", juce::dontSendNotification);
@@ -87,6 +84,8 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 // (const String &text, int x, int y, int width, int height, Justification justificationFlags, int maximumNumberOfLines, float minimumHorizontalScale=0.0f
 
+    totalTime = secondToTime(processorRef.totalSeconds);
+    
     string pHour = to_string(totalTime.hour);
     string pMinute = to_string(totalTime.minute);
     string pSecond = to_string(totalTime.second);
