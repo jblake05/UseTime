@@ -1,10 +1,12 @@
 // #include "PluginProcessor.h"
 #include "../include/UseTime/PluginEditor.h"
+#include "../include/UseTime/time.h"
 
 const int WIDTH_PADDING = 10;
 const int HEIGHT_PADDING = 10;
 const int DIST = 15;
 
+using namespace std;
 //==============================================================================
 AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
@@ -18,6 +20,12 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible(hourLabel);
     addAndMakeVisible(minuteLabel);
     addAndMakeVisible(secondLabel);
+
+    totalTime = secondToTime(processorRef.totalSeconds);
+
+    hourString = to_string(totalTime.hour);
+    minuteString = to_string(totalTime.minute);
+    secondString = to_string(totalTime.second);
 
     hourString = "0";
     minuteString = "0";
@@ -78,9 +86,14 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 
 // (const String &text, int x, int y, int width, int height, Justification justificationFlags, int maximumNumberOfLines, float minimumHorizontalScale=0.0f
-    std::string pHour = std::to_string(*(processorRef.hour));
-    std::string pMinute = std::to_string(*(processorRef.minute));
-    std::string pSecond = std::to_string(*(processorRef.second));
+
+    string pHour = to_string(totalTime.hour);
+    string pMinute = to_string(totalTime.minute);
+    string pSecond = to_string(totalTime.second);
+
+    // std::string pHour = std::to_string(*(processorRef.hour));
+    // std::string pMinute = std::to_string(*(processorRef.minute));
+    // std::string pSecond = std::to_string(*(processorRef.second));
 
     if (hourString != pHour) {
         hourString = pHour;
