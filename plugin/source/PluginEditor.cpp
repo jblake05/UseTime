@@ -24,6 +24,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     addAndMakeVisible(minuteLabel);
     addAndMakeVisible(secondLabel);
     addAndMakeVisible(splashLabel);
+    addAndMakeVisible(logoLabel);
 
     totalTime = secondToTime(processorRef.totalSeconds);
 
@@ -37,27 +38,35 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     randSplash = rand() % SPLASH_ARRAY_SIZE;
     splashLabel.setText(splashText[randSplash], juce::dontSendNotification);
+    logoLabel.setText(":>", juce::dontSendNotification);
 
-    font = juce::Font("Courier", 20.0f, juce::Font::bold);
+    Font font = juce::Font("Courier", 20.0f, juce::Font::bold);
+    Font logoFont = juce::Font("Courier", 40.0f, juce::Font::bold);
 
     // label font setting
     hourLabel.setFont(font);
     minuteLabel.setFont(font);
     secondLabel.setFont(font);
     splashLabel.setFont(font);
+    logoLabel.setFont(logoFont);
 
     // label color setsting
     hourLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
     minuteLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
     secondLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
     splashLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
+    logoLabel.setColour(juce::Label::textColourId, juce::Colour(216, 132, 132));
 
+    // justifications when necessary
     splashLabel.setJustificationType(Justification::bottomRight);
+    logoLabel.setJustificationType(Justification::centred);
 
+    // editability
     hourLabel.setEditable(false);
     minuteLabel.setEditable(false);
     secondLabel.setEditable(false);
     splashLabel.setEditable(false);
+    logoLabel.setEditable(false);
 
     // font.setTypefaceName("Courier");
 
@@ -139,8 +148,8 @@ void AudioPluginAudioProcessorEditor::resized()
     secondLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + 2*DIST, getWidth() - 20, 30);
 
     Rectangle<int> bounds = getLocalBounds();
-    // bounds.width -= WIDTH_PADDING;
-    // bounds.height -= HEIGHT_PADDING;
+    logoLabel.setBounds(bounds);
+
     bounds.reduce(2*WIDTH_PADDING, 2*HEIGHT_PADDING);
     splashLabel.setBounds(bounds);
 }
