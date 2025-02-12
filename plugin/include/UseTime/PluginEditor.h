@@ -38,8 +38,8 @@ private:
         repaint();
     }
 
-    static const int SPLASH_ARRAY_SIZE = 4;
-    std::string splashText[SPLASH_ARRAY_SIZE] = {"Good luck!", "Keep making things :)", "Have fun!", "Keep going!"};
+    static const int SPLASH_ARRAY_SIZE = 5;
+    std::string splashText[SPLASH_ARRAY_SIZE] = {"Good luck!", "Make things :)", "Have fun!", "Keep going!", "You can do it!"};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

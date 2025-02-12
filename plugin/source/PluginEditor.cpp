@@ -40,7 +40,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     splashLabel.setText(splashText[randSplash], juce::dontSendNotification);
     logoLabel.setText(":>", juce::dontSendNotification);
 
-    Font font = juce::Font("Courier", 20.0f, juce::Font::bold);
+    Font font = juce::Font("Courier", 24.0f, juce::Font::bold);
     Font logoFont = juce::Font("Courier", 40.0f, juce::Font::bold);
 
     // label font setting

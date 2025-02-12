@@ -2,6 +2,7 @@
 #include "../include/UseTime/PluginEditor.h"
 #include <fstream>
 #include <iostream>
+// #include <windows.h>
 // #include <juce_AudioParameterInt.h>
 
 //==============================================================================
@@ -17,6 +18,24 @@ const double SAVE_INTERVAL = 60.0;
 const int hz = 2;
 
 using namespace std;
+// string GetPluginDirectory()
+// {
+//     char path[MAX_PATH];
+//     if (GetModuleFileNameA(NULL, path, MAX_PATH)) 
+//     {
+//         string fullPath(path);
+//         size_t pos = fullPath.find_last_of("\\/");
+//         return fullPath.substr(0, pos);  // Get the plugin's directory
+//     }
+//     return "";  // In case of error
+// }
+
+// string GetFileInX86Folder(const std::string& fileName)
+// {
+//     string pluginDir = GetPluginDirectory();
+//     string x86Folder = pluginDir + "\\x86_64-win\\";  // Adjust path if needed
+//     return x86Folder + fileName;
+// }
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
@@ -37,8 +56,14 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     srate = getSampleRate();
     string time;
     ifstream fileIn;
+    // cwd = filesystem::current_path() / "time.txt";
+    // cout << cwd.string();
 
+    // path = GetFileInX86Folder("time.text");
     fileIn.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
+    // fileIn.open("./Contents/x86_64-win/time.txt");
+    // fileIn.open(cwd.string());
+    // fileIn.open("./time.txt");
 	if (!fileIn.is_open()) {
 		std::cerr << "Time input file couldn't open!";
 	}
@@ -55,6 +80,9 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 int AudioPluginAudioProcessor::writeFile() {
 	ofstream fileOut;
 	fileOut.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
+    // fileOut.open("./Contents/x86_64-win/time.txt");
+
+    // fileOut.open(cwd.string());
 
 	if (!fileOut.is_open()) {
 		cerr << "Time output file couldn't open!";
