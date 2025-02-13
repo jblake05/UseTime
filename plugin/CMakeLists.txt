@@ -7,7 +7,7 @@ project(UseTime VERSION 0.1.0)
 
 juce_add_plugin(${PROJECT_NAME}    
     IS_SYNTH FALSE
-    COMPANY_NAME lt:
+    COMPANY_NAME colon_gt
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE 
     PLUGIN_CODE AUPL 
