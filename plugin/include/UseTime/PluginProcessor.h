@@ -3,7 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 
 //==============================================================================
-class AudioPluginAudioProcessor final : public juce::AudioProcessor
+class AudioPluginAudioProcessor final : public juce::AudioProcessor, private juce::Timer
 {
 public:
     //==============================================================================
@@ -41,17 +41,13 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    int writeFile();
 
-    juce::AudioParameterInt* hour;
-    juce::AudioParameterInt* minute;
-    juce::AudioParameterInt* second;
+    double totalSeconds;
+
+    void timerCallback() override;
 
 private:
-    //==============================================================================
-    // juce::AudioProcessorValueTreeState apvts;
-    // std::atomic<int>* hourParameter = nullptr;
-    // std::atomic<int>* hourParameter = nullptr;
-    // std::atomic<int>* hourParameter = nullptr;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

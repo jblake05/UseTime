@@ -2,17 +2,17 @@
 #include "../include/UseTime/PluginEditor.h"
 #include <fstream>
 #include <iostream>
-// #include <juce_AudioParameterInt.h>
 
 //==============================================================================
-double srate;
 double elapsedSamples = 0.0;
+int timesCalled = 0;
 
-double totalSeconds;
 double secondsElapsed = 0.0;
 
 const int SAMPLE_FACTOR = 4;
 const double SAVE_INTERVAL = 60.0;
+const int hz = 2;
+std::string VST_TXT_PATH;
 
 using namespace std;
 //==============================================================================
@@ -25,60 +25,45 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
-        //                ,
-        // apvts(*this, nullptr, juce::Identifier("APVTS"), {
-        //     std::make_unique<juce::AudioParameterInt> ("hourId", "Hours", 0, 1000000000, 0),
-        //     std::make_unique<juce::AudioParameterInt> ("minuteId", "Minutes", 0, 59, 0),
-        //     std::make_unique<juce::AudioParameterInt> ("secondId", "Seconds", 0, 59, 0)
-        // })
 {
-    srate = getSampleRate();
-    string time;
-    ifstream fileIn;
+    juce::File fileIn = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile(juce::StringRef("time.txt"));
+    string time;    
 
-    fileIn.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
-	if (!fileIn.is_open()) {
-		std::cerr << "Time input file couldn't open!";
-	}
+    // juce file sol
+    if (!fileIn.existsAsFile()) {
+        // std::cerr << "Time input file was not found!";
+        return;
+    }
 
-    getline(fileIn, time);
-
-    fileIn.close();
+    juce::String jTime = fileIn.loadFileAsString();
+    time = jTime.toStdString();
 
     totalSeconds = stod(time);
 
-    // parameter setting:
-    addParameter(hour = new juce::AudioParameterInt("hourId", "Hours", 0, 1000000000, 0));
-    addParameter(minute = new juce::AudioParameterInt("minuteId", "Minutes", 0, 59, 0));
-    addParameter(second = new juce::AudioParameterInt("secondId", "Seconds", 0, 59, 0));
-        //id
-        //name
-        //min
-        //max
-        //default
-    // hourParameter = apvts.getRawParameterValue("hourId");
-    // minuteParameter = apvts.getRawParameterValue("minuteId");
-    // secondParameter = apvts.getRawParameterValue("secondId");
+    startTimerHz(hz);
 }
 
-static int writeFile() {
-	ofstream fileOut;
-	fileOut.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
+int AudioPluginAudioProcessor::writeFile() {
+    juce::File fileOut = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile(juce::StringRef("time.txt"));
 
-	if (!fileOut.is_open()) {
-		cerr << "Time output file couldn't open!";
-		return -1;
-	}
+    if (!fileOut.existsAsFile()) {
+        // std::cerr << "Time input file was not found!";
+        return -1;
+    }
 
 	string newTime = to_string(totalSeconds);
 
-	fileOut << newTime;
-
-	fileOut.close();
+    fileOut.replaceWithText(newTime);
 
 	return 0;
 }
 
+void AudioPluginAudioProcessor::timerCallback() {
+    totalSeconds += (double) getTimerInterval()/1000;
+    if (++timesCalled == (int) SAVE_INTERVAL * hz) {
+        writeFile();
+    }
+}
 AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
     writeFile();
@@ -187,89 +172,13 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
   #endif
 }
 
-struct time {
-    int hour;
-    int minute;
-    int second;
-};
-
-struct time secondToTime(double second) {
-	int hr = (int) (second / 3600);
-
-	second = fmod(second, 3600);
-
-	int min = (int) (second / 60);
-
-	second = fmod(second, 60);
-
-	int sec = (int)(second);
-
-	struct time result = {
-		hr,
-		min,
-		sec
-	};
-
-	return result;
-}
-
 void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
+    juce::ignoreUnused(buffer);
     juce::ignoreUnused (midiMessages);
 
     juce::ScopedNoDenormals noDenormals;
-    // auto totalNumInputChannels  = getTotalNumInputChannels();
-    // auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    // for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-    //     buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    // for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    // {
-    //     auto* channelData = buffer.getWritePointer (channel);
-    //     juce::ignoreUnused (channelData);
-    //     // ..do something to the data...
-    // }
-    elapsedSamples += buffer.getNumSamples();
-
-    srate = getSampleRate();
-
-    if (elapsedSamples > srate / SAMPLE_FACTOR) {
-        double fracSeconds = elapsedSamples / srate;
-
-        totalSeconds += fracSeconds;
-        secondsElapsed += fracSeconds;
-
-        elapsedSamples -= srate / SAMPLE_FACTOR;
-
-        // edit parameter now
-        struct time timeVal = secondToTime(totalSeconds);
-        if (*hour != timeVal.hour)
-            *hour = timeVal.hour;
-        if (*minute != timeVal.minute)
-            *minute = timeVal.minute;
-        if (*second != timeVal.second)
-            *second = timeVal.second;
-        // apvts
-    }
-
-    if (secondsElapsed > SAVE_INTERVAL) {
-        writeFile();
-        secondsElapsed -= SAVE_INTERVAL;
-    }
 }
 
 //==============================================================================
@@ -280,7 +189,6 @@ bool AudioPluginAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 {
-    // return new AudioPluginAudioProcessorEditor (*this, *hour, *minute, *second);
     return new AudioPluginAudioProcessorEditor(*this);
 
     // generic until you add a UI that is read only and nice fonts :)
@@ -293,21 +201,14 @@ void AudioPluginAudioProcessor::getStateInformation (juce::MemoryBlock& destData
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    // juce::ignoreUnused (destData);
-    juce::MemoryOutputStream (destData, true).writeInt(*hour);
-    juce::MemoryOutputStream (destData, true).writeInt(*minute);
-    juce::MemoryOutputStream (destData, true).writeInt(*second);
-
+    juce::ignoreUnused (destData);
 }
 
 void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
-    // juce::ignoreUnused (data, sizeInBytes);
-    *hour = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readInt();
-    *minute = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readInt();
-    *second = juce::MemoryInputStream (data, static_cast<size_t> (sizeInBytes), false).readInt();
+    juce::ignoreUnused (data, sizeInBytes);
 }
 
 //==============================================================================
