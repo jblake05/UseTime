@@ -1,4 +1,3 @@
-// #include "PluginProcessor.h"
 #include "../include/UseTime/PluginEditor.h"
 #include "../include/UseTime/time.h"
 
@@ -16,9 +15,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 {
     juce::ignoreUnused (processorRef);
     startTimerHz(2);
-    // hourLabel = Label("hourLabel", "0");
-    // minuteLabel = Label("minuteLabel", "0");
-    // secondLabel = Label("secondLabel", "0");
 
     addAndMakeVisible(hourLabel);
     addAndMakeVisible(minuteLabel);
@@ -40,7 +36,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     splashLabel.setText(splashText[randSplash], juce::dontSendNotification);
     logoLabel.setText(":>", juce::dontSendNotification);
 
-    Font font = juce::Font("Courier", 24.0f, juce::Font::bold);
+    Font font = juce::Font("Courier", 22.0f, juce::Font::bold);
     Font logoFont = juce::Font("Courier", 40.0f, juce::Font::bold);
 
     // label font setting
@@ -68,10 +64,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     splashLabel.setEditable(false);
     logoLabel.setEditable(false);
 
-    // font.setTypefaceName("Courier");
-
-    // font.setTypefaceName("Courier");
-    // repaint();
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
@@ -86,37 +78,13 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    // g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
     g.fillAll(juce::Colours::lightgreen);
-
-    // g.setColour (juce::Colour(216, 132, 132));
-    
-
-    // font.setBold(true);
-
-    // g.setFont(font);
-    // g.setFont(20.0f);
-    // g.setTypefaceName("Courier");
-
-    // apply width and height padding to this bounding box
-    // juce::Rectangle<int> splashBounds = juce::Rectangle<int>(0, 0, getWidth() - WIDTH_PADDING, getHeight() - HEIGHT_PADDING);
-    // g.drawFittedText (splashText[randSplash], splashBounds, juce::Justification::bottomRight, 1);
-    // g.drawFittedText(splashText[randSplash], getWidth() - WIDTH_PADDING, getHeight() - HEIGHT_PADDING, getWidth()/2, getHeight()/2, juce::Justification::left, 2);
-    // g.drawFittedText(":", getWidth()/2 + 10, getHeight()/2 - 10, getWidth() - 20, 30, juce::Justification::centred, 1);
-    // g.drawFittedText(":", getWidth()/2 + 10, getHeight()/2, getWidth() - 20, 30, juce::Justification::centred, 1);
-
-
-// (const String &text, int x, int y, int width, int height, Justification justificationFlags, int maximumNumberOfLines, float minimumHorizontalScale=0.0f
 
     totalTime = secondToTime(processorRef.totalSeconds);
     
     string pHour = to_string(totalTime.hour);
     string pMinute = to_string(totalTime.minute);
     string pSecond = to_string(totalTime.second);
-
-    // std::string pHour = std::to_string(*(processorRef.hour));
-    // std::string pMinute = std::to_string(*(processorRef.minute));
-    // std::string pSecond = std::to_string(*(processorRef.second));
 
     if (hourString != pHour) {
         hourString = pHour;
@@ -129,20 +97,13 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     if (secondString != pSecond) {
         secondString = pSecond;
         secondLabel.setText(secondString + " seconds", juce::dontSendNotification);
-        // ideally only need to repaint here because a change in the second is guaranteed when a change in the hour/minute occurs
     }
-    // repaint();
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    // ig keep the units one for each line to avoid overlap when the vals increase?
-    // maybe add labels (e.g. Hours: x \n Minutes: y \n Seconds: z \n)
-    // hourLabel.setBounds(getWidth()/2, getHeight()/2 - 15, getWidth() - 20, 30);
-    // minuteLabel.setBounds(getWidth()/2, getHeight()/2, getWidth() - 20, 30);
-    // secondLabel.setBounds(getWidth()/2, getHeight()/2 + 15, getWidth() - 20, 30);
     hourLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING, getWidth() - 20, 30);
     minuteLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + DIST, getWidth() - 20, 30);
     secondLabel.setBounds(WIDTH_PADDING, HEIGHT_PADDING + 2*DIST, getWidth() - 20, 30);

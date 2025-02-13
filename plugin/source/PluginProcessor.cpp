@@ -2,40 +2,19 @@
 #include "../include/UseTime/PluginEditor.h"
 #include <fstream>
 #include <iostream>
-// #include <windows.h>
-// #include <juce_AudioParameterInt.h>
 
 //==============================================================================
-double srate;
 double elapsedSamples = 0.0;
 int timesCalled = 0;
 
-// double totalSeconds;
 double secondsElapsed = 0.0;
 
 const int SAMPLE_FACTOR = 4;
 const double SAVE_INTERVAL = 60.0;
 const int hz = 2;
+std::string VST_TXT_PATH;
 
 using namespace std;
-// string GetPluginDirectory()
-// {
-//     char path[MAX_PATH];
-//     if (GetModuleFileNameA(NULL, path, MAX_PATH)) 
-//     {
-//         string fullPath(path);
-//         size_t pos = fullPath.find_last_of("\\/");
-//         return fullPath.substr(0, pos);  // Get the plugin's directory
-//     }
-//     return "";  // In case of error
-// }
-
-// string GetFileInX86Folder(const std::string& fileName)
-// {
-//     string pluginDir = GetPluginDirectory();
-//     string x86Folder = pluginDir + "\\x86_64-win\\";  // Adjust path if needed
-//     return x86Folder + fileName;
-// }
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
      : AudioProcessor (BusesProperties()
@@ -46,31 +25,18 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
-        //                ,
-        // apvts(*this, nullptr, juce::Identifier("APVTS"), {
-        //     std::make_unique<juce::AudioParameterInt> ("hourId", "Hours", 0, 1000000000, 0),
-        //     std::make_unique<juce::AudioParameterInt> ("minuteId", "Minutes", 0, 59, 0),
-        //     std::make_unique<juce::AudioParameterInt> ("secondId", "Seconds", 0, 59, 0)
-        // })
 {
-    srate = getSampleRate();
-    string time;
-    ifstream fileIn;
-    // cwd = filesystem::current_path() / "time.txt";
-    // cout << cwd.string();
+    juce::File fileIn = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile(juce::StringRef("time.txt"));
+    string time;    
 
-    // path = GetFileInX86Folder("time.text");
-    fileIn.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
-    // fileIn.open("./Contents/x86_64-win/time.txt");
-    // fileIn.open(cwd.string());
-    // fileIn.open("./time.txt");
-	if (!fileIn.is_open()) {
-		std::cerr << "Time input file couldn't open!";
-	}
+    // juce file sol
+    if (!fileIn.existsAsFile()) {
+        // std::cerr << "Time input file was not found!";
+        return;
+    }
 
-    getline(fileIn, time);
-
-    fileIn.close();
+    juce::String jTime = fileIn.loadFileAsString();
+    time = jTime.toStdString();
 
     totalSeconds = stod(time);
 
@@ -78,22 +44,16 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 }
 
 int AudioPluginAudioProcessor::writeFile() {
-	ofstream fileOut;
-	fileOut.open("C:/Program Files/Common Files/VST3/UseTime.vst3/Contents/x86_64-win/time.txt");
-    // fileOut.open("./Contents/x86_64-win/time.txt");
+    juce::File fileOut = juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentApplicationFile).getSiblingFile(juce::StringRef("time.txt"));
 
-    // fileOut.open(cwd.string());
-
-	if (!fileOut.is_open()) {
-		cerr << "Time output file couldn't open!";
-		return -1;
-	}
+    if (!fileOut.existsAsFile()) {
+        // std::cerr << "Time input file was not found!";
+        return -1;
+    }
 
 	string newTime = to_string(totalSeconds);
 
-	fileOut << newTime;
-
-	fileOut.close();
+    fileOut.replaceWithText(newTime);
 
 	return 0;
 }
@@ -229,7 +189,6 @@ bool AudioPluginAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 {
-    // return new AudioPluginAudioProcessorEditor (*this, *hour, *minute, *second);
     return new AudioPluginAudioProcessorEditor(*this);
 
     // generic until you add a UI that is read only and nice fonts :)

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-#include <filesystem>
 
 //==============================================================================
 class AudioPluginAudioProcessor final : public juce::AudioProcessor, private juce::Timer
@@ -49,13 +48,6 @@ public:
     void timerCallback() override;
 
 private:
-    //==============================================================================
-    // juce::AudioProcessorValueTreeState apvts;
-    // std::atomic<int>* hourParameter = nullptr;
-    // std::atomic<int>* hourParameter = nullptr;
-    // std::atomic<int>* hourParameter = nullptr;
-    // std::string path;
-    // std::filesystem::path cwd;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
